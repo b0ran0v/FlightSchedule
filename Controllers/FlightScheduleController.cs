@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using FlightSchedule.Data;
 using FlightSchedule.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -15,18 +16,19 @@ namespace FlightSchedule.Controllers
     public class FlightScheduleController : ControllerBase
     {
         private readonly ILogger<FlightScheduleController> _logger;
+        private readonly ApplicationDbContext _context;
 
-        public FlightScheduleController(ILogger<FlightScheduleController> logger)
+        public FlightScheduleController(ILogger<FlightScheduleController> logger, ApplicationDbContext context)
         {
             _logger = logger;
-            
+            _context = context;
         }
 
         public Flight[] InitializeExampleData()
         {
-            City city1 = new City{CityId = 1, Name = "Astana"};
-            City city2 = new City{CityId = 2, Name = "Almaty"};
-            City city3 = new City{CityId = 6, Name = "Atyrau"};
+            City city1 = _context.Cities.FirstOrDefault(city => city.Name == "Nur-Sultan");
+            City city2 = _context.Cities.FirstOrDefault(city => city.Name == "Almaty");
+            City city3 = _context.Cities.FirstOrDefault(city => city.Name == "Atyrau");
             Flight[] flights = {
                 new Flight
                 {
