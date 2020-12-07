@@ -1,18 +1,15 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
 using FlightSchedule.Data;
 using FlightSchedule.Models;
+using FlightSchedule.Models.Forms;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace FlightSchedule.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class FlightScheduleController : ControllerBase
     {
         private readonly ILogger<FlightScheduleController> _logger;
@@ -82,12 +79,19 @@ namespace FlightSchedule.Controllers
                 DateTime currentDate = Convert.ToDateTime(date);
                 var flights = InitializeExampleData();
                 var currentFlights = flights.Where(flight => flight.DepartureTime.Date.Day == currentDate.Day)
-                    .OrderBy(flight => flight.DepartureTime);
+                    .OrderBy(flight => flight.DepartureTime).
+                    Select(flight => new FlightForm
+                {
+                    DepartureCity = flight.DepartureCity.Name,
+                    DestinationCity = flight.DestinationCity.Name,
+                    DepartureTime = flight.DepartureTime,
+                    LandingTime = flight.LandingTime
+                });
                 return Ok(currentFlights);
             }
             catch (FormatException)
             {
-                return BadRequest();
+                return BadRequest("Not correct DateTime format");
             }
         }
     }
