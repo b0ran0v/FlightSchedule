@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
 using FlightSchedule.Data;
-using FlightSchedule.Models;
 using FlightSchedule.Models.Forms;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -21,77 +21,36 @@ namespace FlightSchedule.Controllers
             _context = context;
         }
 
-        public Flight[] InitializeExampleData()
-        {
-            City city1 = _context.Cities.FirstOrDefault(city => city.Name == "Nur-Sultan");
-            City city2 = _context.Cities.FirstOrDefault(city => city.Name == "Almaty");
-            City city3 = _context.Cities.FirstOrDefault(city => city.Name == "Atyrau");
-            Flight[] flights = {
-                new Flight
-                {
-                    FlightId = 3,
-                    DepartureCity = city1,
-                    DestinationCity = city3,
-                    DepartureTime = DateTime.Now.AddHours(12),
-                    LandingTime = DateTime.Now.AddHours(14.5)
-                },
-                new Flight
-                {
-                    FlightId = 4,
-                    DepartureCity = city3,
-                    DestinationCity = city1,
-                    DepartureTime = DateTime.Now.AddDays(1).AddHours(8),
-                    LandingTime = DateTime.Now.AddDays(1).AddHours(10.5)
-                },
-                new Flight
-                {
-                    FlightId = 1,
-                    DepartureCity = city2,
-                    DestinationCity = city1,
-                    DepartureTime = DateTime.Now,
-                    LandingTime = DateTime.Now.AddHours(1.5)
-                },
-                new Flight
-                {
-                    FlightId = 2,
-                    DepartureCity = city3,
-                    DestinationCity = city2,
-                    DepartureTime = DateTime.Now.AddDays(1).AddHours(3),
-                    LandingTime = DateTime.Now.AddDays(1).AddHours(6.5)
-                }
-            };
-
-            return flights;
-        }
-
         [HttpGet]
         public IActionResult Index()
         {
             return Ok();
         }
-        
-        [HttpGet("getSchedule")]
+
+        [HttpGet("get-schedule")]
         [Produces("application/json")]
-        public IActionResult GetSchedule(string date)
+        public IActionResult GetSchedule(string date, string departureCity, string destinationCity)
         {
+            if (!Tools.Tools.ContainsAllParameters(date, departureCity, destinationCity)) return BadRequest();
             try
             {
-                DateTime currentDate = Convert.ToDateTime(date);
-                var flights = InitializeExampleData();
-                var currentFlights = flights.Where(flight => flight.DepartureTime.Date.Day == currentDate.Day)
-                    .OrderBy(flight => flight.DepartureTime).
-                    Select(flight => new FlightForm
-                {
-                    DepartureCity = flight.DepartureCity.Name,
-                    DestinationCity = flight.DestinationCity.Name,
-                    DepartureTime = flight.DepartureTime,
-                    LandingTime = flight.LandingTime
-                });
+                DateTime searchingDate = Convert.ToDateTime(date);
+                var currentFlights = _context.Flights.Where(flight =>
+                        flight.DepartureTime.Date.Day == searchingDate.Day &&
+                        flight.DepartureCity.Name == departureCity &&
+                        flight.DestinationCity.Name == destinationCity)
+                    .OrderBy(flight => flight.DepartureTime).Select(flight => new FlightForm
+                    {
+                        DepartureCity = flight.DepartureCity.Name,
+                        DestinationCity = flight.DestinationCity.Name,
+                        DepartureTime = flight.DepartureTime,
+                        LandingTime = flight.LandingTime
+                    });
                 return Ok(currentFlights);
             }
-            catch (FormatException)
+            catch (FormatException e)
             {
-                return BadRequest("Not correct DateTime format");
+                return BadRequest($"Not correct parameter format: {e.Message}");
             }
         }
     }

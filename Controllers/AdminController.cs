@@ -1,9 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using FlightSchedule.Data;
 using FlightSchedule.Models;
@@ -34,12 +30,13 @@ namespace FlightSchedule.Controllers
             return Ok("Welcome to Admin Page!");
         }
         
-        [HttpPost("addFlight")]
+        // Create
+        [HttpPost("add-flight")]
         public async Task<IActionResult> AddFlight()
         {
             try
             {
-                var message = await (new StreamReader(Request.Body)).ReadToEndAsync();
+                var message = await new StreamReader(Request.Body).ReadToEndAsync();
                 var flightForm = JsonConvert.DeserializeObject<FlightForm>(message);
                 Flight flight = new Flight
                 {
@@ -53,6 +50,35 @@ namespace FlightSchedule.Controllers
                 await _context.AddAsync(flight);
                 await _context.SaveChangesAsync();
                 return Ok("New flight is successfully added.");
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        
+        
+        // Remove
+        [HttpPost("remove-flight")]
+        public async Task<IActionResult> RemoveFlight()
+        {
+            try
+            {
+                var message = await new StreamReader(Request.Body).ReadToEndAsync();
+                var flightForm = JsonConvert.DeserializeObject<FlightForm>(message);
+                Flight flight = new Flight
+                {
+                    DepartureTime = flightForm.DepartureTime,
+                    LandingTime = flightForm.LandingTime,
+                    DepartureCity = await _context.Cities.
+                        FirstOrDefaultAsync(city=>city.Name==flightForm.DepartureCity),
+                    DestinationCity = await _context.Cities.
+                        FirstOrDefaultAsync(city=>city.Name==flightForm.DestinationCity),
+                };
+                _context.Attach(flight);
+                _context.Remove(flight);
+                await _context.SaveChangesAsync();
+                return Ok("Flight is successfully removed");
             }
             catch (Exception e)
             {
