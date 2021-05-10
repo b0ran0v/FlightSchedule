@@ -6,7 +6,7 @@ namespace FlightSchedule.Models
 {
     public class Flight
     {
-        [Key] public int FlightId { get; set; }
+        [Required] [Key] [StringLength(10)] public string FlightId { get; set; }
 
         [Required] public City DepartureCity { get; set; }
 

@@ -5,10 +5,8 @@ namespace FlightSchedule.Models
 {
     public class City
     {
-        [Key] 
-        public int CityId { get; set; }
-        
-        [Required] 
-        public string Name { get; set; }
+        [Required] [Key] [StringLength(3)] public string CityId { get; set; }
+
+        [Required] public string Name { get; set; }
     }
 }

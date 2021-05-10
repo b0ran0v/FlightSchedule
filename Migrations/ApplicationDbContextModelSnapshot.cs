@@ -21,10 +21,9 @@ namespace FlightSchedule.Migrations
 
             modelBuilder.Entity("FlightSchedule.Models.City", b =>
                 {
-                    b.Property<int>("CityId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .UseIdentityColumn();
+                    b.Property<string>("CityId")
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -37,19 +36,18 @@ namespace FlightSchedule.Migrations
 
             modelBuilder.Entity("FlightSchedule.Models.Flight", b =>
                 {
-                    b.Property<int>("FlightId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .UseIdentityColumn();
+                    b.Property<string>("FlightId")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
-                    b.Property<int?>("DepartureCityCityId")
-                        .HasColumnType("int");
+                    b.Property<string>("DepartureCityCityId")
+                        .HasColumnType("nvarchar(3)");
 
                     b.Property<DateTime>("DepartureTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DestinationCityCityId")
-                        .HasColumnType("int");
+                    b.Property<string>("DestinationCityCityId")
+                        .HasColumnType("nvarchar(3)");
 
                     b.Property<DateTime>("LandingTime")
                         .HasColumnType("datetime2");

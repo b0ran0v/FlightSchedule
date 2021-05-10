@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FlightSchedule.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20201205171902_Initial")]
+    [Migration("20210510175715_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,10 +23,9 @@ namespace FlightSchedule.Migrations
 
             modelBuilder.Entity("FlightSchedule.Models.City", b =>
                 {
-                    b.Property<int>("CityId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .UseIdentityColumn();
+                    b.Property<string>("CityId")
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -39,19 +38,18 @@ namespace FlightSchedule.Migrations
 
             modelBuilder.Entity("FlightSchedule.Models.Flight", b =>
                 {
-                    b.Property<int>("FlightId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .UseIdentityColumn();
+                    b.Property<string>("FlightId")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
-                    b.Property<int?>("DepartureCityCityId")
-                        .HasColumnType("int");
+                    b.Property<string>("DepartureCityCityId")
+                        .HasColumnType("nvarchar(3)");
 
                     b.Property<DateTime>("DepartureTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DestinationCityCityId")
-                        .HasColumnType("int");
+                    b.Property<string>("DestinationCityCityId")
+                        .HasColumnType("nvarchar(3)");
 
                     b.Property<DateTime>("LandingTime")
                         .HasColumnType("datetime2");

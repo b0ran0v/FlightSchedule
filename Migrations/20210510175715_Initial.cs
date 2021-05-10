@@ -11,8 +11,7 @@ namespace FlightSchedule.Migrations
                 name: "Cities",
                 columns: table => new
                 {
-                    CityId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CityId = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
@@ -24,10 +23,9 @@ namespace FlightSchedule.Migrations
                 name: "Flights",
                 columns: table => new
                 {
-                    FlightId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    DepartureCityCityId = table.Column<int>(type: "int", nullable: true),
-                    DestinationCityCityId = table.Column<int>(type: "int", nullable: true),
+                    FlightId = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    DepartureCityCityId = table.Column<string>(type: "nvarchar(3)", nullable: true),
+                    DestinationCityCityId = table.Column<string>(type: "nvarchar(3)", nullable: true),
                     DepartureTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LandingTime = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },

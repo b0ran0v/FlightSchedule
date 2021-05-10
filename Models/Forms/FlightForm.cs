@@ -6,11 +6,14 @@ namespace FlightSchedule.Models.Forms
 {
     public class FlightForm
     {
-        [JsonProperty("departureCity", Required = Required.Always)]
-        public string DepartureCity { get; set; }
+        [JsonProperty("flightId", Required = Required.Always)]
+        public string FlightId { get; set; }
+        
+        [JsonProperty("departureCityId", Required = Required.Always)]
+        public string DepartureCityId { get; set; }
 
-        [JsonProperty("destinationCity", Required = Required.Always)]
-        public string DestinationCity { get; set; }
+        [JsonProperty("destinationCityId", Required = Required.Always)]
+        public string DestinationCityId { get; set; }
 
         [JsonProperty("departureTime", Required = Required.Always)]
         public DateTime DepartureTime { get; set; }

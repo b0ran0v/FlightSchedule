@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using FlightSchedule.Data;
 using FlightSchedule.Models.Forms;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace FlightSchedule.Controllers
@@ -27,25 +29,40 @@ namespace FlightSchedule.Controllers
             return Ok();
         }
 
-        [HttpGet("get-schedule")]
+        // Get Schedule By Flight Date and Cities
+        [HttpGet("get-schedule-by-date")]
         [Produces("application/json")]
-        public IActionResult GetSchedule(string date, string departureCity, string destinationCity)
+        public IActionResult GetSchedule(string date, string departureCityId, string destinationCityId)
         {
-            if (!Tools.Tools.ContainsAllParameters(date, departureCity, destinationCity)) return BadRequest();
+            if (!Tools.Tools.ContainsAllParameters(date, departureCityId, destinationCityId)) return BadRequest();
             try
             {
                 DateTime searchingDate = Convert.ToDateTime(date);
                 var currentFlights = _context.Flights.Where(flight =>
                         flight.DepartureTime.Date.Day == searchingDate.Day &&
-                        flight.DepartureCity.Name == departureCity &&
-                        flight.DestinationCity.Name == destinationCity)
-                    .OrderBy(flight => flight.DepartureTime).Select(flight => new FlightForm
-                    {
-                        DepartureCity = flight.DepartureCity.Name,
-                        DestinationCity = flight.DestinationCity.Name,
-                        DepartureTime = flight.DepartureTime,
-                        LandingTime = flight.LandingTime
-                    });
+                        flight.DepartureCity.CityId == departureCityId.ToUpper() &&
+                        flight.DestinationCity.Name == destinationCityId.ToUpper())
+                    .OrderBy(flight => flight.DepartureTime);
+                return Ok(currentFlights);
+            }
+            catch (FormatException e)
+            {
+                return BadRequest($"Not correct parameter format: {e.Message}");
+            }
+        }
+
+        // Get Schedule By Flight Id
+        [HttpGet("get-schedule-by-flightId")]
+        [Produces("application/json")]
+        public IActionResult GetSchedule(string flightId)
+        {
+            if (!Tools.Tools.ContainsAllParameters(flightId)) return BadRequest();
+            try
+            {
+                var currentFlights = _context.Flights.Where(flight =>
+                        flight.FlightId == flightId.ToUpper()).Include(flight => flight.DepartureCity)
+                    .Include(flight => flight.DestinationCity)
+                    .OrderBy(flight => flight.DepartureTime);
                 return Ok(currentFlights);
             }
             catch (FormatException e)

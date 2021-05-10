@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using FlightSchedule.Data;
 using FlightSchedule.Models;
@@ -12,7 +13,7 @@ using Newtonsoft.Json;
 namespace FlightSchedule.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class AdminController : ControllerBase
     {
         private readonly ILogger<FlightScheduleController> _logger;
@@ -23,14 +24,14 @@ namespace FlightSchedule.Controllers
             _logger = logger;
             _context = context;
         }
-        
+
         [HttpGet]
         public IActionResult Index()
         {
             return Ok("Welcome to Admin Page!");
         }
-        
-        // Create
+
+        // Create new flight
         [HttpPost("add-flight")]
         public async Task<IActionResult> AddFlight()
         {
@@ -40,12 +41,13 @@ namespace FlightSchedule.Controllers
                 var flightForm = JsonConvert.DeserializeObject<FlightForm>(message);
                 Flight flight = new Flight
                 {
+                    FlightId = flightForm.FlightId,
                     DepartureTime = flightForm.DepartureTime,
                     LandingTime = flightForm.LandingTime,
-                    DepartureCity = await _context.Cities.
-                        FirstOrDefaultAsync(city=>city.Name==flightForm.DepartureCity),
-                    DestinationCity = await _context.Cities.
-                        FirstOrDefaultAsync(city=>city.Name==flightForm.DestinationCity),
+                    DepartureCity =
+                        await _context.Cities.FirstOrDefaultAsync(city => city.CityId == flightForm.DepartureCityId),
+                    DestinationCity =
+                        await _context.Cities.FirstOrDefaultAsync(city => city.CityId == flightForm.DestinationCityId),
                 };
                 await _context.AddAsync(flight);
                 await _context.SaveChangesAsync();
@@ -56,24 +58,19 @@ namespace FlightSchedule.Controllers
                 return BadRequest(e.Message);
             }
         }
-        
-        
-        // Remove
+
+
+        // Remove by flightId
         [HttpPost("remove-flight")]
         public async Task<IActionResult> RemoveFlight()
         {
             try
             {
                 var message = await new StreamReader(Request.Body).ReadToEndAsync();
-                var flightForm = JsonConvert.DeserializeObject<FlightForm>(message);
+                var flightForm = JsonConvert.DeserializeObject<FlightDeleteForm>(message);
                 Flight flight = new Flight
                 {
-                    DepartureTime = flightForm.DepartureTime,
-                    LandingTime = flightForm.LandingTime,
-                    DepartureCity = await _context.Cities.
-                        FirstOrDefaultAsync(city=>city.Name==flightForm.DepartureCity),
-                    DestinationCity = await _context.Cities.
-                        FirstOrDefaultAsync(city=>city.Name==flightForm.DestinationCity),
+                    FlightId = flightForm.FlightId,
                 };
                 _context.Attach(flight);
                 _context.Remove(flight);
