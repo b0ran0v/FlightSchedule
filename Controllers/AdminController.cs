@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using FlightSchedule.Data;
 using FlightSchedule.Models;
@@ -67,11 +66,7 @@ namespace FlightSchedule.Controllers
             if (!Tools.Tools.ContainsAllParameters(flightId)) return BadRequest();
             try
             {
-                var message = await new StreamReader(Request.Body).ReadToEndAsync();
-                Flight flight = new Flight
-                {
-                    FlightId = flightId
-                };
+                Flight flight = new Flight { FlightId = flightId };
                 _context.Attach(flight);
                 _context.Remove(flight);
                 await _context.SaveChangesAsync();
@@ -92,13 +87,16 @@ namespace FlightSchedule.Controllers
             {
                 var message = await new StreamReader(Request.Body).ReadToEndAsync();
                 var flightForm = JsonConvert.DeserializeObject<FlightUpdateForm>(message);
-                Flight flight = new Flight
-                {
-                    FlightId = flightId
-                };
+                Flight flight = new Flight { FlightId = flightId };
+                
+                //Finding specific flight in context
                 _context.Attach(flight);
+                
+                //Changing values of departure and landing time of flight
                 flight.DepartureTime = flightForm.DepartureTime;
                 flight.LandingTime = flightForm.LandingTime;
+                
+                //Saving changes
                 await _context.SaveChangesAsync();
                 return Ok("Flight is successfully updated");
             }
