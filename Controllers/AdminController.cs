@@ -61,16 +61,16 @@ namespace FlightSchedule.Controllers
 
 
         // Remove by flightId
-        [HttpPost("delete-flight")]
-        public async Task<IActionResult> RemoveFlight()
+        [HttpDelete("delete-flight")]
+        public async Task<IActionResult> RemoveFlight(string flightId)
         {
+            if (!Tools.Tools.ContainsAllParameters(flightId)) return BadRequest();
             try
             {
                 var message = await new StreamReader(Request.Body).ReadToEndAsync();
-                var flightForm = JsonConvert.DeserializeObject<FlightDeleteForm>(message);
                 Flight flight = new Flight
                 {
-                    FlightId = flightForm.FlightId,
+                    FlightId = flightId
                 };
                 _context.Attach(flight);
                 _context.Remove(flight);
@@ -84,7 +84,7 @@ namespace FlightSchedule.Controllers
         }
 
         // Update by Flight Id
-        [HttpPost("update-flight")]
+        [HttpPut("update-flight")]
         public async Task<IActionResult> UpdateFlight(string flightId)
         {
             if (!Tools.Tools.ContainsAllParameters(flightId)) return BadRequest();
