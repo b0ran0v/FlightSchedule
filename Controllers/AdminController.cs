@@ -61,7 +61,7 @@ namespace FlightSchedule.Controllers
 
 
         // Remove by flightId
-        [HttpPost("remove-flight")]
+        [HttpPost("delete-flight")]
         public async Task<IActionResult> RemoveFlight()
         {
             try
@@ -76,6 +76,31 @@ namespace FlightSchedule.Controllers
                 _context.Remove(flight);
                 await _context.SaveChangesAsync();
                 return Ok("Flight is successfully removed");
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        // Update by Flight Id
+        [HttpPost("update-flight")]
+        public async Task<IActionResult> UpdateFlight(string flightId)
+        {
+            if (!Tools.Tools.ContainsAllParameters(flightId)) return BadRequest();
+            try
+            {
+                var message = await new StreamReader(Request.Body).ReadToEndAsync();
+                var flightForm = JsonConvert.DeserializeObject<FlightUpdateForm>(message);
+                Flight flight = new Flight
+                {
+                    FlightId = flightId
+                };
+                _context.Attach(flight);
+                flight.DepartureTime = flightForm.DepartureTime;
+                flight.LandingTime = flightForm.LandingTime;
+                await _context.SaveChangesAsync();
+                return Ok("Flight is successfully updated");
             }
             catch (Exception e)
             {

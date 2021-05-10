@@ -49,6 +49,11 @@ namespace FlightSchedule.Controllers
             {
                 return BadRequest($"Not correct parameter format: {e.Message}");
             }
+            
+            catch (Exception e)
+            {
+                return BadRequest($"Error: {e.Message}");
+            }
         }
 
         // Get Schedule By Flight Id
@@ -65,9 +70,9 @@ namespace FlightSchedule.Controllers
                     .OrderBy(flight => flight.DepartureTime);
                 return Ok(currentFlights);
             }
-            catch (FormatException e)
+            catch (Exception e)
             {
-                return BadRequest($"Not correct parameter format: {e.Message}");
+                return BadRequest($"Error: {e.Message}");
             }
         }
     }
